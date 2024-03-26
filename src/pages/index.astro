@@ -2,15 +2,117 @@
 
 ---
 
-<html lang="en">
+<html data-theme="synthwave" lang="es">
 	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Tu Imagen</title>
+		<link href="/dist/output.css" rel="stylesheet" />
 	</head>
-	<body>
-		<h1>Astro</h1>
+	<body class="flex items-center justify-center h-screen bg-gray-100">
+		<div class="card w-96 bg-base-100 shadow-xl">
+			<div class="card-body">
+				<h2 class="card-title">Iniciar Sesión</h2>
+				<form id="loginForm">
+					<div class="form-control">
+						<label class="label">
+							<span class="label-text">ID de la Orden</span>
+						</label>
+						<input
+							type="text"
+							id="orderId"
+							placeholder="Ingrese el ID de la orden"
+							class="input input-bordered"
+							required
+						/>
+					</div>
+					<div class="form-control">
+						<label class="label">
+							<span class="label-text"
+								>Fecha de Nacimiento del Paciente</span
+							>
+						</label>
+						<input
+							type="text"
+							id="patientDob"
+							placeholder="AAAA-MM-DD"
+							class="input input-bordered"
+							required
+						/>
+					</div>
+					<div class="form-control mt-6">
+						<button type="submit" class="btn btn-primary"
+							>Entrar</button
+						>
+					</div>
+				</form>
+			</div>
+		</div>
+
+		<script>
+			document
+				.getElementById("loginForm")
+				?.addEventListener("submit", async function (event) {
+					event.preventDefault(); // Previene el envío tradicional del formulario
+
+					const orderIdElement = document.getElementById("orderId");
+					const orderId = orderIdElement
+						? (orderIdElement as HTMLInputElement).value
+						: "";
+					const patientDobElement =
+						document.getElementById("patientDob");
+					const patientDob = patientDobElement
+						? (
+								patientDobElement as HTMLInputElement
+							).value.replaceAll("-", "")
+						: "";
+
+					try {
+						const response = await fetch(
+							`http://localhost:8080/api/ordenes/${orderId}`,
+							{
+								method: "GET",
+								headers: {
+									"Content-Type": "application/json",
+								},
+							},
+						);
+
+						if (response.ok) {
+							const data = await response.json();
+							if (
+								data.success &&
+								data.data.paciente.fecha_nacimiento.replaceAll(
+									"-",
+									"",
+								) === patientDob
+							) {
+								alert("Autenticación exitosa.");
+								// Implementar la lógica post-autenticación aquí
+							} else {
+								alert(
+									"Datos incorrectos. Por favor, verifique el ID de la orden y la fecha de nacimiento.",
+								);
+							}
+						} else {
+							alert("Error al comunicarse con la API.");
+						}
+					} catch (error) {
+						console.error(
+							"Error al realizar la solicitud a la API:",
+							error,
+						);
+						alert("Error al realizar la solicitud a la API.");
+					}
+				});
+		</script>
 	</body>
 </html>
+<style>
+	body,
+	html {
+		height: 100%;
+		margin: 0;
+		overflow: hidden;
+	}
+</style>
